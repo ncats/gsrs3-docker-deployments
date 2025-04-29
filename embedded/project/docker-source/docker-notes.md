@@ -4,7 +4,7 @@
 
 ```
 export DOCKER_SOURCE=../../docker-source
-export HOST_VOLUMES=../../volumes
+export HOST_VOLUMES=../volumes
 
 export DB_TEST_USERNAME=root
 export DB_TEST_PASSWORD=yourpassword
@@ -70,9 +70,12 @@ ssg4m
 
 ## Pick one database service
 ```
+h2 
 mariadb 
 mysql 
 postgresql
+
+#  For h2, set $DATABASE='' on the docker-compose command. It is used by default
 ```
 
 ## Check environment variables
@@ -86,6 +89,16 @@ DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f ../docker-source/docker-compose.yml up \
 config
 ```
+
+## Override the frontend config.json 
+
+Place your custom `config.json` file in this location before running the container. 
+
+```
+$HOST_VOLUMES/app-data/
+frontend/classes/static/assets/data/config.json
+```
+
 
 ## Building images
 
