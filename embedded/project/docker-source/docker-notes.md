@@ -3,7 +3,7 @@
 ## Terminal Environment
 
 ```
-export DOCKER_SOURCE=../../docker-source
+export DOCKER_SOURCE=../docker-source
 export HOST_VOLUMES=../volumes
 
 export DB_TEST_USERNAME=root
@@ -12,7 +12,7 @@ export DB_TEST_PASSWORD=yourpassword
 # export RELEASE_MODE=development
 export RELEASE_MODE=public
 
-export BUILD_VERSION=v2024.1115.1
+export BUILD_VERSION=v2025.0429.1
 
 ```
 
@@ -23,13 +23,18 @@ This Docker recipe is mainly meant for local testing and also to provide an intr
 
 ## gsrs-ci
 
-Below gsrs-ci refers to the deployments folder used by FDA. but you may use any similar deployment repository such as gsrs-example-deployment, or gsrs3-main-deployment.  
+Below gsrs-ci refers to the deployments folder used by FDA. but you may use any similar deployment repository such as:
+
+- gsrs-ci
+- gsrs-example-deployment
+- gsrs3-main-deployment  
 
 ## Clone gsrs-ci
 
 ```
 # Temporarily clone your gsrs-ci repo here
-cd gsrs3-docker-deployments/projects
+
+cd gsrs3-docker-deployments/embedded/project
 ```
 
 ## Running the containers
@@ -37,8 +42,15 @@ cd gsrs3-docker-deployments/projects
 First you'll need to build your images (see below)
 
 ```
-# use ONE of (postgresql, mariadb, mysql) database flavors.
+# use ONE of the database flavors:
+
+- h2 (DATABASE="" in this case)
+- postgresql
+- mariadb
+- mysql
+
 # The docker-compose.yml file should require one of these but does not yet do so.
+
 # If you need to use sudo, put the sudo before the db credentials.
 
 cd gsrs-ci
@@ -69,6 +81,7 @@ ssg4m
 ```
 
 ## Pick one database service
+
 ```
 h2 
 mariadb 
@@ -90,7 +103,7 @@ docker-compose -f ../docker-source/docker-compose.yml up \
 config
 ```
 
-## Override the frontend config.json 
+## Override the frontend config.json
 
 Place your custom `config.json` file in this location before running the container. 
 
@@ -105,7 +118,7 @@ frontend/classes/static/assets/data/config.json
 ```
 # Run these in gsrs-ci/<service>
 
-# You may want to run with --build-arg RELEASE_MODE=$RELEASE_MODE
+# Make sure you have set a value RELEASE_MODE (development|public). This will determine whether a `Dockerfile` looks for code in Github or Maven. 
 
 # ==== 
 
@@ -114,45 +127,45 @@ export DOCKER_SOURCE=../../docker-source
 cd gsrs-ci
 
 cd substances
-docker build -f $DOCKER_SOURCE/substances/Dockerfile --no-cache --progress=plain  --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-substances:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/substances/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-substances:0.0.1-SNAPSHOT .
 
 cd ..
 cd gateway
-docker build -f $DOCKER_SOURCE/gateway/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/gateway/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT .
 
 cd ..
 cd frontend
 export FRONTEND_TAG='development_3.0'
 # export FRONTEND_TAG='GSRSv3.1.1PUB'
-docker build -f $DOCKER_SOURCE/frontend/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-frontend:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/frontend/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-frontend:0.0.1-SNAPSHOT .
 
 cd ..
 cd adverse-events
-docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-adverse-events:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-adverse-events:0.0.1-SNAPSHOT .
 
 cd ..
 cd applications
-docker build -f $DOCKER_SOURCE/applications/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-applications:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/applications/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-applications:0.0.1-SNAPSHOT .
 
 cd ..
 cd clinical-trials
-docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT .
 
 cd ..
 cd impurities
-docker build -f $DOCKER_SOURCE/impurities/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-impurities:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/impurities/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-impurities:0.0.1-SNAPSHOT .
 
 cd ..
 cd invitro-pharmacology
-docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-invitro-pharmacology:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-invitro-pharmacology:0.0.1-SNAPSHOT .
 
 cd ..
 cd products
-docker build -f $DOCKER_SOURCE/products/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-products:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/products/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-products:0.0.1-SNAPSHOT .
 
 cd ..
 cd ssg4m
-docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile --no-cache --progress=plain --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .
 ```
 
 ## Create/reset database init.sql files
@@ -197,9 +210,28 @@ find . -type f  | grep -v app-data/db | grep -v 'frontend/classes'  | grep -v gs
 tar -cvzf db.init.sql.tar.gz  $(find volumes -name init -type d)
 ```
 
-# Backup configuration files
+# Backup configuration files from volumes
 
 ```
 tar -cvzf flavor.env-db.conf.tar.gz  $(find volumes -type f -name  "*env-db.conf")
-tar -cvzf backup.all.conf.tar.gz  $(find volumes -name conf -type d) 
+
+tar -cvzf  backup.volumes.confs.tar.gz  $(find volumes -name "*.conf" -type f) 
+```
+
+# Backup configuration files from a gsrs-ci deployment and put in volumes/app-data structure
+
+```
+if ( test -d temp.ci.confs ); then
+  echo "Aborted temp.ci.confs folder already exists";
+else
+  rm -f temp.ci.confs.tar.gz
+  for f in $(find . -name "*.conf" -type f); do
+  dir="$(dirname "${f}")"
+  file="$(basename "${f}")"
+  newDir=$(echo "$dir" | sed -e 's/\.\/\(.*\)\/src\/main\/resources/temp.ci.confs\/volumes\/app-data/\/\1\/conf/g')
+  mkdir -p $newDir
+  cp $f $newDir/$file
+  tar -cvzf temp.ci.confs.tar.gz temp.ci.confs
+  done;
+fi
 ```

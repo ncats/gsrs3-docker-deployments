@@ -6,7 +6,7 @@ ARG STARTER_MODULE_BRANCH=master
 ARG SUBSTANCES_MODULE_BRANCH=master
 ARG ADVERSE_EVENTS_MODULE_BRANCH=starter
 
-COPY . .
+
 COPY . .
 RUN if [ "$RELEASE_MODE" = "development" ]; then \
   git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \

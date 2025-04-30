@@ -10,14 +10,14 @@ COPY . .
 RUN if [ "$RELEASE_MODE" = "development" ]; then \
   git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
   # git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
-  git clone --branch $SSG4M_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-ssg4m.git && \
+  git clone --branch $SSG4M_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-ssg4.git && \
   cd gsrs-spring-starter &&  mvn clean -U install -DskipTests && \ 
     sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
     mvn clean -U install -DskipTests && \
   # cd .. && cd gsrs-spring-module-substances && \
     # sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
     # mvn clean -U install -DskipTests && \
-  cd .. && cd gsrs-spring-module-ssg4m && \ 
+  cd .. && cd gsrs-spring-module-ssg4 && \ 
     # sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh \
     mvn clean -U install -DskipTests; \
 fi

@@ -36,6 +36,8 @@ services:
       - 8083:8083
   clinical-trials:
     container_name: clinical-trials-emb
+    depends_on:
+      - substances
     image: gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT
     entrypoint: ["java", "-cp", "/target/clinical-trials.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
@@ -125,6 +127,8 @@ services:
       - 8090:8090
   products:
     container_name: products-emb
+    depends_on:
+      - substances
     entrypoint: ["java", "-cp", "/target/products.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:9081

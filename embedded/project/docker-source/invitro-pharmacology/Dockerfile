@@ -4,9 +4,8 @@ FROM maven:3.6.3-jdk-11 AS build
 ARG RELEASE_MODE='public'
 ARG STARTER_MODULE_BRANCH=master
 ARG SUBSTANCES_MODULE_BRANCH=master
-ARG INVITRO_PHARMACOLOGY_MODULE_BRANCH=starter
+ARG INVITRO_PHARMACOLOGY_MODULE_BRANCH=master
 
-COPY . .
 COPY . .
 RUN if [ "$RELEASE_MODE" = "development" ]; then \
   git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
@@ -18,13 +17,16 @@ RUN if [ "$RELEASE_MODE" = "development" ]; then \
   cd .. && cd gsrs-spring-module-substances && \
     sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
     mvn clean -U install -DskipTests && \
-   cd .. && cd gsrs-spring-module-invitro-pharmacology && \ 
+  cd .. && cd gsrs-spring-module-invitro-pharmacology && \ 
     # sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh \
     mvn clean -U install -DskipTests; \
 fi
 
-RUN sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh
-RUN mvn clean -U package -Dwith.packaging=jar -DskipTests
+RUN rm -rf src/main/resources/application.conf && \
+    rm -rf src/main/resources/invitro-pharmacology-env.conf && \
+    rm -rf src/main/resources/invitro-pharmacology-env-db.conf && \
+    sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
+    mvn clean -U package -Dwith.packaging=jar -DskipTests
 
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -35,3 +37,4 @@ RUN mkdir -p /app/data/invitro-pharmacology/classes
 WORKDIR /app/data/invitro-pharmacology
 EXPOSE 8084
 ENTRYPOINT ["java", "-cp", "/target/invitro-pharmacology.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
+
