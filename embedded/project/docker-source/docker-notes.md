@@ -3,14 +3,14 @@
 ## Terminal Environment
 
 ```
-export DOCKER_SOURCE=../docker-source
-export HOST_VOLUMES=../volumes
+export DOCKER_SOURCE=/path/to/docker-source
+export HOST_VOLUMES=/path/to/volumes
 
 export DB_TEST_USERNAME=root
-export DB_TEST_PASSWORD=yourpassword
+export DB_TEST_PASSWORD=XXXXXX
 
-# export RELEASE_MODE=development
-export RELEASE_MODE=public
+# choose development or public
+export RELEASE_MODE=development
 
 export BUILD_VERSION=v2025.0429.1
 
@@ -18,16 +18,16 @@ export BUILD_VERSION=v2025.0429.1
 
 ## Purpose
 
-This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS. 
+This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS in an embedded Tomcat scenario.
 
 
 ## gsrs-ci
 
-Below gsrs-ci refers to the deployments folder used by FDA. but you may use any similar deployment repository such as:
+Below "gsrs-ci" refers to a deployments folder used by FDA. but you may use any similar deployment repository/folder:
 
 - gsrs-ci
 - gsrs-example-deployment
-- gsrs3-main-deployment  
+- gsrs3-main-deployment
 
 ## Clone gsrs-ci
 
@@ -35,6 +35,9 @@ Below gsrs-ci refers to the deployments folder used by FDA. but you may use any 
 # Temporarily clone your gsrs-ci repo here
 
 cd gsrs3-docker-deployments/embedded/project
+clone http://github.com/ncats/gsrs-ci.git
+cd gsrs-ci 
+
 ```
 
 ## Running the containers
@@ -58,14 +61,14 @@ cd gsrs-ci
 export DATABASE=postgresql 
 sudo \
 DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
-docker-compose -f ../docker-source/docker-compose.yml up \
+docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
 $DATABASE frontend gateway substances products
 ```
 
 ## Available services
 
 ```
-adverse-events  ?
+adverse-events
 applications
 discovery
 frontend
@@ -76,7 +79,7 @@ invitro-pharmacology
 substances
 ssg4m
 
-# Most entity services, depend on the substances service for full fuctionality. 
+# Most entity services, depend on the substances service for full functionality. 
 # Discovery isn't used in practice, yet.
 ```
 
@@ -88,8 +91,20 @@ mariadb
 mysql 
 postgresql
 
-#  For h2, set $DATABASE='' on the docker-compose command. It is used by default
+#  For h2, set $DATABASE='' on the docker-compose command. It is used by default.
 ```
+
+
+## Database `<service>-env-db.conf` files and init files
+
+These files contain default configs details for flavor
+
+- blank.env-db.conf.tar.gz (use for h2)
+- db.init.sql.tar.gz
+- mariadb.env-db.conf.tar.gz
+- mysql.env-db.conf.tar.gz
+- postgresql.env-db.conf.tar.gz
+
 
 ## Check environment variables
 
@@ -98,7 +113,7 @@ See if environment variables are interpolated as expected.
 ```
 export DATABASE=postgresql 
 sudo \
-DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
+DB_TEST_USERNAME=root DB_TEST_PASSWORD=XXXXXX \
 docker-compose -f ../docker-source/docker-compose.yml up \
 config
 ```
@@ -108,21 +123,17 @@ config
 Place your custom `config.json` file in this location before running the container. 
 
 ```
-$HOST_VOLUMES/app-data/
-frontend/classes/static/assets/data/config.json
+$HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 ```
-
 
 ## Building images
 
 ```
-# Run these in gsrs-ci/<service>
+# Run these in the gsrs-ci/<service> corresponding folder
 
 # Make sure you have set a value RELEASE_MODE (development|public). This will determine whether a `Dockerfile` looks for code in Github or Maven. 
 
 # ==== 
-
-export DOCKER_SOURCE=../../docker-source
 
 cd gsrs-ci
 
@@ -171,7 +182,7 @@ docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile --no-cache --progress=plain --bu
 ## Create/reset database init.sql files
 
 ```
-# Volumes/db/<flavor>/init folder
+
 cd project 
 tar -xvzf db.init.sql.tar.gz
 
@@ -234,4 +245,13 @@ else
   tar -cvzf temp.ci.confs.tar.gz temp.ci.confs
   done;
 fi
+```
+
+# To do 
+
+```
+Remove deletion of application.conf form Dockerfiles 
+Separate db init/info folders
+Add depends on substances to all entity services in docker-compose.yml (except ssg4m)
+copy salt file in substances Dockerfile 
 ```
