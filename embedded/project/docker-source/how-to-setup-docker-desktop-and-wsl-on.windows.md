@@ -34,7 +34,7 @@ clone gsrs3-docker-deployments
 ```
 
 
-## Using web constainers that you create
+## Using web containers that you create
 
 You should be able to access containers from your Windows Firefox or other browser, for example like this.
 

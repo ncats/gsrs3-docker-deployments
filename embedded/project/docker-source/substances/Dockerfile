@@ -6,18 +6,22 @@ ARG STARTER_MODULE_BRANCH=master
 ARG SUBSTANCES_MODULE_BRANCH=master
 
 COPY . .
-RUN apt-get update && apt-get install git
-RUN if [ "$RELEASE_MODE" = "development" ]; then \
-    git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
-    git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
-    cd gsrs-spring-starter &&  mvn clean -U install -DskipTests && \ 
-    sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
-    mvn clean -U install -DskipTests && \
-    cd .. && cd gsrs-spring-module-substances && \ 
-    sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
-    mvn clean -U install -DskipTests && \ 
-    cd .. ;\
-fi
+ADD settings.xml /root/.m2/settings.xml
+RUN whoami && cat  /root/.m2/settings.xml
+
+# RUN apt-get update && apt-get install git
+# # RUN #  if [ "$RELEASE_MODE" == "development" ]; then \
+# RUN    git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
+#     git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
+#     cd gsrs-spring-starter &&  mvn clean -U install -DskipTests && \ 
+#     sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
+#     mvn clean -U install -DskipTests && \
+#     cd .. && cd gsrs-spring-module-substances && \ 
+#     sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
+#     mvn clean -U install -DskipTests && \ 
+#     cd .. 
+# # ;\
+# # fi
 
 RUN sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh
 RUN mvn clean -U package -Dwith.packaging=jar -DskipTests

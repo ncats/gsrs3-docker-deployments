@@ -2,6 +2,8 @@
 FROM maven:3.6.3-jdk-11 as build
 
 COPY . .
+ADD settings.xml /root/.m2/settings.xml
+RUN whoami && cat  /root/.m2/settings.xml
 
 RUN mvn clean -U package -Dwith.packaging=jar  -DskipTests
 

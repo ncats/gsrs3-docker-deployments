@@ -1,16 +1,14 @@
 # Docker mvn build
-FROM maven:3.6.3-jdk-11 AS build
+FROM alpine:latest AS build
 
 ARG RELEASE_MODE='public'
 
 COPY . .
-# ADD settings.xml /root/.m2/settings.xml
-# RUN whoami && cat  /root/.m2/settings.xml
-
-RUN if [ -f "installExtraJars.sh" ]; then sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh;  sh installExtraJars.sh; fi && \
-    mvn clean -U package -Dwith.packaging=jar -DskipTests
-
-    ENV TZ=America/New_York
+RUN apk add --no-cache git openjdk17
+RUN if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \
+    ./mvnw clean -U package -Dwith.packaging=jar -DskipTests && \
+    cp 
+ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN mkdir -p /app/data/gateway

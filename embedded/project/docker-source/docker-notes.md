@@ -3,17 +3,19 @@
 ## Terminal Environment
 
 ```
-export DOCKER_SOURCE=/path/to/docker-source
-export HOST_VOLUMES=/path/to/volumes
+
+export embedded_root_dir=$(pwd)
+export gsrs_ci_dir=$embedded_root_dir/project/gsrs3-main-deployment
+export DOCKER_SOURCE=$embedded_root_dir/project/docker-source
+export HOST_VOLUMES=$embedded_root_dir/project/volumes
 
 export DB_TEST_USERNAME=root
-export DB_TEST_PASSWORD=XXXXXX
+export DB_TEST_PASSWORD=yourpassword
 
-# choose development or public
+# development|public
 export RELEASE_MODE=development
 
 export BUILD_VERSION=v2025.0429.1
-
 ```
 
 ## Purpose
@@ -138,45 +140,109 @@ $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 cd gsrs-ci
 
 cd substances
-docker build -f $DOCKER_SOURCE/substances/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-substances:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/substances/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
+--build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-substances:0.0.1-SNAPSHOT .
 
 cd ..
 cd gateway
-docker build -f $DOCKER_SOURCE/gateway/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/gateway/Dockerfile.debian \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-gateway-debian:0.0.1-SNAPSHOT .
 
 cd ..
 cd frontend
-export FRONTEND_TAG='development_3.0'
-# export FRONTEND_TAG='GSRSv3.1.1PUB'
-docker build -f $DOCKER_SOURCE/frontend/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-frontend:0.0.1-SNAPSHOT .
+# export FRONTEND_TAG='development_3.0'
+export FRONTEND_TAG='GSRSv3.1.2PUB'
+docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
+--no-cache --progress=plain \
+--build-arg FRONTEND_TAG=$FRONTEND_TAG \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-frontend:0.0.1-SNAPSHOT .
 
 cd ..
 cd adverse-events
-docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-adverse-events:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
+--build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
+--build-arg ADVERSE_EVENTS_MODULE_BRANCH=$ADVERSE_EVENTS_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-adverse-events:0.0.1-SNAPSHOT .
+
 
 cd ..
 cd applications
-docker build -f $DOCKER_SOURCE/applications/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-applications:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/applications/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
+--build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
+--build-arg APPLICATIONS_MODULE_BRANCH=$APPLICATIONS_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+ -t gsrs3/gsrs-emb-docker-applications:0.0.1-SNAPSHOT .
 
 cd ..
 cd clinical-trials
-docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
+--build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
+--build-arg CLINICAL_TRIALS_MODULE_BRANCH=$CLINICAL_TRIALS_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT .
 
 cd ..
 cd impurities
-docker build -f $DOCKER_SOURCE/impurities/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-impurities:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
+--build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
+--build-arg IMPURITIES_MODULE_BRANCH=$IMPURITIES_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+ -t gsrs3/gsrs-emb-docker-impurities:0.0.1-SNAPSHOT .
 
 cd ..
 cd invitro-pharmacology
-docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-invitro-pharmacology:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
+ --no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
+--build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
+--build-arg INVITRO_PHARMACOLOGY_MODULE_BRANCH=$INVITRO_PHARMACOLOGY_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+ -t gsrs3/gsrs-emb-docker-invitro-pharmacology:0.0.1-SNAPSHOT .
 
 cd ..
 cd products
-docker build -f $DOCKER_SOURCE/products/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-products:0.0.1-SNAPSHOT .
+cp ../../settings.xml .
+docker build -f $DOCKER_SOURCE/products/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
+--build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
+--build-arg PRODUCTS_MODULE_BRANCH=$PRODUCTS_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-products:0.0.1-SNAPSHOT .
 
 cd ..
 cd ssg4m
-docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile --no-cache --progress=plain --build-arg RELEASE_MODE=$RELEASE_MODE --build-arg BUILD_VERSION=$BUILD_VERSION -t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .
+docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SSG4M_MODULE_BRANCH=$SSG4M_MODULE_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .
 ```
 
 ## Create/reset database init.sql files

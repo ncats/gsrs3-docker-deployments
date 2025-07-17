@@ -7,6 +7,9 @@ ARG SUBSTANCES_MODULE_BRANCH=master
 ARG IMPURITIES_MODULE_BRANCH=starter
 
 COPY . .
+ADD settings.xml /root/.m2/settings.xml
+RUN whoami && cat  /root/.m2/settings.xml
+
 RUN if [ "$RELEASE_MODE" = "development" ]; then \
   git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
   git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
@@ -22,8 +25,7 @@ RUN if [ "$RELEASE_MODE" = "development" ]; then \
     mvn clean -U install -DskipTests; \
 fi
 
-RUN rm -rf src/main/resources/application.conf && \
-    rm -rf src/main/resources/impurities-env.conf && \
+RUN rm -rf src/main/resources/impurities-env.conf && \
     rm -rf src/main/resources/impurities-env-db.conf && \
     sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
     mvn clean -U package -Dwith.packaging=jar -DskipTests

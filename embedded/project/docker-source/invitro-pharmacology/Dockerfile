@@ -7,6 +7,9 @@ ARG SUBSTANCES_MODULE_BRANCH=master
 ARG INVITRO_PHARMACOLOGY_MODULE_BRANCH=master
 
 COPY . .
+ADD settings.xml /root/.m2/settings.xml
+RUN whoami && cat  /root/.m2/settings.xml
+
 RUN if [ "$RELEASE_MODE" = "development" ]; then \
   git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
   git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
@@ -22,7 +25,7 @@ RUN if [ "$RELEASE_MODE" = "development" ]; then \
     mvn clean -U install -DskipTests; \
 fi
 
-RUN rm -rf src/main/resources/application.conf && \
+RUN rm -rf src/main/resources/ && \
     rm -rf src/main/resources/invitro-pharmacology-env.conf && \
     rm -rf src/main/resources/invitro-pharmacology-env-db.conf && \
     sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh && sh installExtraJars.sh && \
