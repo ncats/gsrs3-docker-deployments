@@ -13,7 +13,7 @@ export DB_TEST_USERNAME=root
 export DB_TEST_PASSWORD=yourpassword
 
 # development|public
-export RELEASE_MODE=development
+export RELEASE_MODE=public
 
 export BUILD_VERSION=v2025.0429.1
 ```
@@ -21,7 +21,6 @@ export BUILD_VERSION=v2025.0429.1
 ## Purpose
 
 This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS in an embedded Tomcat scenario.
-
 
 ## gsrs-ci
 
@@ -96,7 +95,6 @@ postgresql
 #  For h2, set $DATABASE='' on the docker-compose command. It is used by default.
 ```
 
-
 ## Database `<service>-env-db.conf` files and init files
 
 These files contain default configs details for flavor
@@ -106,7 +104,6 @@ These files contain default configs details for flavor
 - mariadb.env-db.conf.tar.gz
 - mysql.env-db.conf.tar.gz
 - postgresql.env-db.conf.tar.gz
-
 
 ## Check environment variables
 
@@ -122,7 +119,7 @@ config
 
 ## Override the frontend config.json
 
-Place your custom `config.json` file in this location before running the container. 
+Place your custom `config.json` file in this location before running the container.
 
 ```
 $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
@@ -140,7 +137,9 @@ $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 cd gsrs-ci
 
 cd substances
-docker build -f $DOCKER_SOURCE/substances/Dockerfile \
+cp ../../settings.xml . 
+ docker build -f $DOCKER_SOURCE/substances/Dockerfile \
+--platform linux/x86_64 \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
@@ -148,16 +147,21 @@ docker build -f $DOCKER_SOURCE/substances/Dockerfile \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-substances:0.0.1-SNAPSHOT .
 
+# On substances 
+# --platform linux/x86_64  -- because got errors related to ehcache-failsafe.xml and Error loading shared library ld-linux-aarch64.so
+
 cd ..
 cd gateway
-docker build -f $DOCKER_SOURCE/gateway/Dockerfile.debian \
+cp ../../settings.xml .
+docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
--t gsrs3/gsrs-emb-docker-gateway-debian:0.0.1-SNAPSHOT .
+-t gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT .
 
 cd ..
 cd frontend
+cp ../../settings.xml .
 # export FRONTEND_TAG='development_3.0'
 export FRONTEND_TAG='GSRSv3.1.2PUB'
 docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
@@ -169,6 +173,7 @@ docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
 
 cd ..
 cd adverse-events
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -181,6 +186,7 @@ docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 
 cd ..
 cd applications
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -192,6 +198,7 @@ docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 
 cd ..
 cd clinical-trials
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -203,6 +210,7 @@ docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 
 cd ..
 cd impurities
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -214,6 +222,7 @@ docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 
 cd ..
 cd invitro-pharmacology
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
  --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -237,12 +246,14 @@ docker build -f $DOCKER_SOURCE/products/Dockerfile \
 
 cd ..
 cd ssg4m
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
 --build-arg SSG4M_MODULE_BRANCH=$SSG4M_MODULE_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .
+
 ```
 
 ## Create/reset database init.sql files
@@ -281,13 +292,13 @@ rm -r ./volumes/app-data/db/mysql/info && mkdir -p ./volumes/app-data/db/mysql/i
 find . -type f  | grep -v app-data/db | grep -v 'frontend/classes'  | grep -v gsrs-ci
 ```
 
-# Backup init.sql scripts 
+## Backup init.sql scripts
 
 ```
 tar -cvzf db.init.sql.tar.gz  $(find volumes -name init -type d)
 ```
 
-# Backup configuration files from volumes
+## Backup configuration files from volumes
 
 ```
 tar -cvzf flavor.env-db.conf.tar.gz  $(find volumes -type f -name  "*env-db.conf")
@@ -295,7 +306,7 @@ tar -cvzf flavor.env-db.conf.tar.gz  $(find volumes -type f -name  "*env-db.conf
 tar -cvzf  backup.volumes.confs.tar.gz  $(find volumes -name "*.conf" -type f) 
 ```
 
-# Backup configuration files from a gsrs-ci deployment and put in volumes/app-data structure
+## Backup configuration files from a gsrs-ci deployment and put in volumes/app-data structure
 
 ```
 if ( test -d temp.ci.confs ); then
@@ -313,11 +324,10 @@ else
 fi
 ```
 
-# To do 
+## To do
 
 ```
-Remove deletion of application.conf form Dockerfiles 
 Separate db init/info folders
-Add depends on substances to all entity services in docker-compose.yml (except ssg4m)
-copy salt file in substances Dockerfile 
+Add depends on substances to all entity services in docker-compose.yml (except ssg4m) 
+salt file?
 ```
