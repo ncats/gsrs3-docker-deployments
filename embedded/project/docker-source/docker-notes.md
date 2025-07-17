@@ -13,7 +13,7 @@ export DB_TEST_USERNAME=root
 export DB_TEST_PASSWORD=yourpassword
 
 # development|public
-export RELEASE_MODE=development
+export RELEASE_MODE=public
 
 export BUILD_VERSION=v2025.0429.1
 ```
@@ -66,6 +66,14 @@ DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
 $DATABASE frontend gateway substances products
 ```
+
+export DATABASE=mariadb
+DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
+docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
+$DATABASE substances adverse-events applications
+
+
+
 
 ## Available services
 
@@ -140,7 +148,9 @@ $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 cd gsrs-ci
 
 cd substances
-docker build -f $DOCKER_SOURCE/substances/Dockerfile \
+cp ../../settings.xml . 
+ docker build -f $DOCKER_SOURCE/substances/Dockerfile \
+--platform linux/x86_64 \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
@@ -148,16 +158,21 @@ docker build -f $DOCKER_SOURCE/substances/Dockerfile \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-substances:0.0.1-SNAPSHOT .
 
+# On substances 
+# --platform linux/x86_64  -- because got errors related to ehcache-failsafe.xml and Error loading shared library ld-linux-aarch64.so
+
 cd ..
 cd gateway
-docker build -f $DOCKER_SOURCE/gateway/Dockerfile.debian \
+cp ../../settings.xml .
+docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
--t gsrs3/gsrs-emb-docker-gateway-debian:0.0.1-SNAPSHOT .
+-t gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT .
 
 cd ..
 cd frontend
+cp ../../settings.xml .
 # export FRONTEND_TAG='development_3.0'
 export FRONTEND_TAG='GSRSv3.1.2PUB'
 docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
@@ -169,6 +184,7 @@ docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
 
 cd ..
 cd adverse-events
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -181,6 +197,7 @@ docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 
 cd ..
 cd applications
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -192,6 +209,7 @@ docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 
 cd ..
 cd clinical-trials
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -203,6 +221,7 @@ docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 
 cd ..
 cd impurities
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -214,6 +233,7 @@ docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 
 cd ..
 cd invitro-pharmacology
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
  --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -237,12 +257,14 @@ docker build -f $DOCKER_SOURCE/products/Dockerfile \
 
 cd ..
 cd ssg4m
+cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
 --build-arg SSG4M_MODULE_BRANCH=$SSG4M_MODULE_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .
+
 ```
 
 ## Create/reset database init.sql files

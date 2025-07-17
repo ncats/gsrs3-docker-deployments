@@ -1,21 +1,22 @@
-# Docker mvn build
-FROM maven:3.6.3-jdk-11 AS build
+
+FROM alpine:latest AS build
 
 ARG RELEASE_MODE='public'
+ENV TZ=America/New_York
 
 COPY . .
-# ADD settings.xml /root/.m2/settings.xml
-# RUN whoami && cat  /root/.m2/settings.xml
+RUN if [ -f settings.xml ]; then \
+  mkdir -p /root/.m2; \
+  cp settings.xml /root/.m2/settings.xml; \ 
+fi && \
+apk add --no-cache git openjdk17 && \
+if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \
+./mvnw clean -U package -Dwith.packaging=jar -DskipTests && \
+ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+mkdir -p /app/data/gateway  && \
+mkdir -p /app/data/gateway/conf  && \
+mkdir -p /app/data/gateway/classes
 
-RUN if [ -f "installExtraJars.sh" ]; then sed -i.bak -e "s/\.\/mvnw/mvn/g" installExtraJars.sh;  sh installExtraJars.sh; fi && \
-    mvn clean -U package -Dwith.packaging=jar -DskipTests
-
-    ENV TZ=America/New_York
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-RUN mkdir -p /app/data/gateway
-RUN mkdir -p /app/data/gateway/conf
-RUN mkdir -p /app/data/gateway/classes
 WORKDIR /app/data/gateway
 EXPOSE 9081
 ENTRYPOINT ["java", "-cp", "/target/gateway.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
