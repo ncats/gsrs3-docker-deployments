@@ -66,11 +66,6 @@ docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
 $DATABASE frontend gateway substances products
 ```
 
-export DATABASE=mariadb
-DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
-docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
-$DATABASE substances adverse-events applications
-
 ## Available services
 
 ```
@@ -332,8 +327,7 @@ fi
 ## To do
 
 ```
-Remove deletion of application.conf form Dockerfiles 
 Separate db init/info folders
-Add depends on substances to all entity services in docker-compose.yml (except ssg4m)
-copy salt file in substances Dockerfile 
+Add depends on substances to all entity services in docker-compose.yml (except ssg4m) 
+salt file?
 ```
