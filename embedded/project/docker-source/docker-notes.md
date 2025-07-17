@@ -22,7 +22,6 @@ export BUILD_VERSION=v2025.0429.1
 
 This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS in an embedded Tomcat scenario.
 
-
 ## gsrs-ci
 
 Below "gsrs-ci" refers to a deployments folder used by FDA. but you may use any similar deployment repository/folder:
@@ -72,9 +71,6 @@ DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
 $DATABASE substances adverse-events applications
 
-
-
-
 ## Available services
 
 ```
@@ -104,7 +100,6 @@ postgresql
 #  For h2, set $DATABASE='' on the docker-compose command. It is used by default.
 ```
 
-
 ## Database `<service>-env-db.conf` files and init files
 
 These files contain default configs details for flavor
@@ -114,7 +109,6 @@ These files contain default configs details for flavor
 - mariadb.env-db.conf.tar.gz
 - mysql.env-db.conf.tar.gz
 - postgresql.env-db.conf.tar.gz
-
 
 ## Check environment variables
 
@@ -130,7 +124,7 @@ config
 
 ## Override the frontend config.json
 
-Place your custom `config.json` file in this location before running the container. 
+Place your custom `config.json` file in this location before running the container.
 
 ```
 $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
@@ -303,13 +297,13 @@ rm -r ./volumes/app-data/db/mysql/info && mkdir -p ./volumes/app-data/db/mysql/i
 find . -type f  | grep -v app-data/db | grep -v 'frontend/classes'  | grep -v gsrs-ci
 ```
 
-# Backup init.sql scripts 
+## Backup init.sql scripts
 
 ```
 tar -cvzf db.init.sql.tar.gz  $(find volumes -name init -type d)
 ```
 
-# Backup configuration files from volumes
+## Backup configuration files from volumes
 
 ```
 tar -cvzf flavor.env-db.conf.tar.gz  $(find volumes -type f -name  "*env-db.conf")
@@ -317,7 +311,7 @@ tar -cvzf flavor.env-db.conf.tar.gz  $(find volumes -type f -name  "*env-db.conf
 tar -cvzf  backup.volumes.confs.tar.gz  $(find volumes -name "*.conf" -type f) 
 ```
 
-# Backup configuration files from a gsrs-ci deployment and put in volumes/app-data structure
+## Backup configuration files from a gsrs-ci deployment and put in volumes/app-data structure
 
 ```
 if ( test -d temp.ci.confs ); then
@@ -335,7 +329,7 @@ else
 fi
 ```
 
-# To do 
+## To do
 
 ```
 Remove deletion of application.conf form Dockerfiles 
