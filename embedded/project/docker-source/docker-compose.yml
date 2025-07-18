@@ -1,4 +1,3 @@
-version: '3'
 services:
   adverse-events:
     container_name: adverse-events-emb  
@@ -6,6 +5,8 @@ services:
     environment:
       APPLICATION_HOST: http://gateway:9081
       APPLICATION_HOST_PORT: 9081
+      DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
+      DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
       IX_HOME: /app/data/adverse-events/ginas.ix
       IX_HOME_SUBSTANCES: /app/data/substances/ginas.ix
@@ -35,6 +36,8 @@ services:
       - 8083:8083
   clinical-trials:
     container_name: clinical-trials-emb
+    depends_on:
+      - substances
     image: gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT
     entrypoint: ["java", "-cp", "/target/clinical-trials.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
@@ -69,24 +72,25 @@ services:
       MS_FRONTEND_SERVER_PORT: 8082
       MS_SERVLET_CONTEXT_PATH_FRONTEND: /
     image: gsrs3/gsrs-emb-docker-frontend:0.0.1-SNAPSHOT
-    volumes:
-      - ../volumes/app-data:/app/data
     ports:
       - 8082:8082
+    volumes:
+      - ../volumes/app-data:/app/data
   gateway:
     container_name: gateway-emb
     entrypoint: ["java", "-cp", "/target/gateway.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
-    ports:
-      - 9081:9081
-    image: gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT
-    volumes:
-      - ../volumes/app-data:/app/data
     environment:
+      DEBUG: false
       API_BASE_PATH: /ginas/app
       APPLICATION_HOST: http://gateway:9081
       APPLICATION_HOST_PORT: 9081
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
       SERVER_PORT: 9081
+    image: gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT
+    ports:
+      - 9081:9081
+    volumes:
+      - ../volumes/app-data:/app/data
   impurities:
     container_name: impurities-emb
     entrypoint: ["java", "-cp", "/target/impurities.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
@@ -123,6 +127,8 @@ services:
       - 8090:8090
   products:
     container_name: products-emb
+    depends_on:
+      - substances
     entrypoint: ["java", "-cp", "/target/products.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:9081
@@ -178,9 +184,9 @@ services:
   mariadb:
     container_name: mariadb-emb
     environment:
-      MARIADB_ROOT_USER: $DB_TEST_USERNAME
-      MARIADB_USER: $DB_TEST_USERNAME
-      MARIADB_ROOT_PASSWORD: $DB_TEST_PASSWORD
+      MARIADB_ROOT_USER: ${DB_TEST_USERNAME}
+      MARIADB_USER: ${DB_TEST_USERNAME}
+      MARIADB_ROOT_PASSWORD: ${DB_TEST_PASSWORD}
     image: mariadb:latest
     ports:
       - "3306:3306"
@@ -194,9 +200,9 @@ services:
     #  "--mysql-native-password=ON",
     command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     environment:
-      MYSQL_ROOT_PASSWORD: $DB_TEST_PASSWORD
-      MYSQL_PASSWORD: $DB_TEST_PASSWORD
-      MYSQL_USER: $DB_TEST_USERNAME
+      MYSQL_ROOT_PASSWORD: ${DB_TEST_PASSWORD}
+      MYSQL_PASSWORD: ${DB_TEST_PASSWORD}
+      MYSQL_USER: ${DB_TEST_USERNAME}
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     image: mysql:8.4
     ports:
@@ -209,8 +215,8 @@ services:
     command: postgres -c 'max_connections=1000'
     container_name: postgres-emb
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=yourpassword
+      - POSTGRES_USER=${DB_TEST_USERNAME}
+      - POSTGRES_PASSWORD=${DB_TEST_PASSWORD}
     image: postgres:14-alpine
     ports:
       - 5432:5432
