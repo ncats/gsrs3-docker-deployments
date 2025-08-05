@@ -3,9 +3,16 @@
 ## Terminal Environment
 
 ```
+cd gsrs3-docker-deployments/embedded
 
 export embedded_root_dir=$(pwd)
-export gsrs_ci_dir=$embedded_root_dir/project/gsrs3-main-deployment
+
+
+
+export gsrs_ci_dir=$embedded_root_dir/project/gsrs-ci
+# or ...
+# export gsrs_ci_dir=$embedded_root_dir/project/gsrs3-main-deployment
+
 export DOCKER_SOURCE=$embedded_root_dir/project/docker-source
 export HOST_VOLUMES=$embedded_root_dir/project/volumes
 
@@ -16,6 +23,17 @@ export DB_TEST_PASSWORD=yourpassword
 export RELEASE_MODE=public
 
 export BUILD_VERSION=v2025.0429.1
+
+# As needed, only use if in development mode
+export STARTER_MODULE_BRANCH='master'
+export SUBSTANCES_MODULE_BRANCH='master'
+export ADVERSE_EVENTS_MODULE_BRANCH='starter'
+export APPLICATIONS_MODULE_BRANCH='starter'
+export CLINICAL_TRIALS_MODULE_BRANCH='master'
+export IMPURITIES_MODULE_BRANCH='starter'
+export INVITRO_PHARMACOLOGY_MODULE_BRANCH='master'
+export PRODUCTS_MODULE_BRANCH='starter'
+export SSG4M_MODULE_BRANCH='master'
 ```
 
 ## Purpose
@@ -55,11 +73,15 @@ First you'll need to build your images (see below)
 
 # The docker-compose.yml file should require one of these but does not yet do so.
 
-# If you need to use sudo, put the sudo before the db credentials.
-
 cd gsrs-ci
 
-export DATABASE=postgresql 
+export DATABASE=mariadb
+DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
+docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
+$DATABASE frontend gateway substances products
+
+# If you need to use sudo, put the sudo before the db credentials.
+export DATABASE=postgresql
 sudo \
 DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
@@ -112,9 +134,8 @@ See if environment variables are interpolated as expected.
 ```
 export DATABASE=postgresql 
 sudo \
-DB_TEST_USERNAME=root DB_TEST_PASSWORD=XXXXXX \
-docker-compose -f ../docker-source/docker-compose.yml up \
-config
+DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
+docker-compose -f $DOCKER_SOURCE/docker-compose.yml config
 ```
 
 ## Override the frontend config.json
@@ -130,14 +151,16 @@ $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 ```
 # Run these in the gsrs-ci/<service> corresponding folder
 
-# Make sure you have set a value RELEASE_MODE (development|public). This will determine whether a `Dockerfile` looks for code in Github or Maven. 
+# Make sure you have set a value RELEASE_MODE (development|public). This will determine whether a `Dockerfile` looks for code in Github or Maven Central.
+
+# A settings.xml file may be required, we are trying to make it no so.
 
 # ==== 
 
 cd gsrs-ci
 
 cd substances
-cp ../../settings.xml . 
+# cp ../../settings.xml . 
  docker build -f $DOCKER_SOURCE/substances/Dockerfile \
 --platform linux/x86_64 \
 --no-cache --progress=plain \
@@ -150,9 +173,21 @@ cp ../../settings.xml .
 # On substances 
 # --platform linux/x86_64  -- because got errors related to ehcache-failsafe.xml and Error loading shared library ld-linux-aarch64.so
 
+# Experimental, may not work, not currently used by FDA
+# not included in gsrs3-main-deployment
+cd ..
+cd discovery
+# cp ../../settings.xml .
+docker build -f $DOCKER_SOURCE/discovery/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-discovery:0.0.1-SNAPSHOT .
+
+
 cd ..
 cd gateway
-cp ../../settings.xml .
+# cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -161,7 +196,7 @@ docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 
 cd ..
 cd frontend
-cp ../../settings.xml .
+# cp ../../settings.xml .
 # export FRONTEND_TAG='development_3.0'
 export FRONTEND_TAG='GSRSv3.1.2PUB'
 docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
@@ -186,7 +221,7 @@ docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 
 cd ..
 cd applications
-cp ../../settings.xml .
+# cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -198,7 +233,7 @@ docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 
 cd ..
 cd clinical-trials
-cp ../../settings.xml .
+# cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -210,7 +245,7 @@ docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 
 cd ..
 cd impurities
-cp ../../settings.xml .
+# cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -222,7 +257,7 @@ docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 
 cd ..
 cd invitro-pharmacology
-cp ../../settings.xml .
+# cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
  --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -234,7 +269,7 @@ docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
 
 cd ..
 cd products
-cp ../../settings.xml .
+# cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/products/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -246,7 +281,7 @@ docker build -f $DOCKER_SOURCE/products/Dockerfile \
 
 cd ..
 cd ssg4m
-cp ../../settings.xml .
+# cp ../../settings.xml .
 docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -270,20 +305,22 @@ tar -xvzf db.init.sql.tar.gz
 Before committing to Git, clean up folders from test instances
 
 ```
-rm -r ./volumes/app-data/adverse-events/ginas.ix
-rm -r ./volumes/app-data/applications/ginas.ix
-rm -r ./volumes/app-data/clinical-trials/ginas.ix
-rm -r ./volumes/app-data/impurities/ginas.ix
-rm -r ./volumes/app-data/invitro-pharmacology/ginas.ix
-rm -r ./volumes/app-data/substances/ginas.ix
+rm -r $HOST_VOLUMES/app-data/adverse-events/ginas.ix
+rm -r $HOST_VOLUMES/app-data/applications/ginas.ix
+rm -r $HOST_VOLUMES/app-data/clinical-trials/ginas.ix
+rm -r $HOST_VOLUMES/app-data/impurities/ginas.ix
+rm -r $HOST_VOLUMES/app-data/invitro-pharmacology/ginas.ix
+rm -r $HOST_VOLUMES/app-data/products/ginas.ix
+rm -r $HOST_VOLUMES/app-data/substances/ginas.ix
 ```
 
 ## Wipe databases
 
 ```
-rm -r ./volumes/app-data/db/mariadb/info && mkdir -p ./volumes/app-data/db/mariadb/info
-rm -r ./volumes/app-data/db/postgresql/info && mkdir -p ./volumes/app-data/db/postgresql/info
-rm -r ./volumes/app-data/db/mysql/info && mkdir -p ./volumes/app-data/db/mysql/info
+
+rm -r $HOST_VOLUMES/$app-data/db/mariadb/info && mkdir -p ./volumes/app-data/db/mariadb/info
+rm -r $HOST_VOLUMES/app-data/db/postgresql/info && mkdir -p ./volumes/app-data/db/postgresql/info
+rm -r  $HOST_VOLUMES/app-data/db/mysql/info && mkdir -p ./volumes/app-data/db/mysql/info
 ```
 
 ## Find more files to exclude from commits or clean up
