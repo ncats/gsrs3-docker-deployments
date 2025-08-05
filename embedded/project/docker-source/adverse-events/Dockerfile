@@ -4,8 +4,8 @@ ARG RELEASE_MODE='public'
 ARG STARTER_MODULE_BRANCH=master
 ARG SUBSTANCES_MODULE_BRANCH=master
 ARG ADVERSE_EVENTS_MODULE_BRANCH=starter
-
-ENV TZ=America/New_York
+ARG TZ=America/New_York
+ENV TZ=${TZ}
 
 COPY . .
 RUN if [ -f settings.xml ]; then \
@@ -14,24 +14,29 @@ RUN if [ -f settings.xml ]; then \
 fi && \
 apk add --no-cache git openjdk17 && \
 if [ "$RELEASE_MODE" = "development" ]; then \
+  echo "RELEASE_MODE: "$RELEASE_MODE && \
+  echo "STARTER_MODULE_BRANCH: "$STARTER_MODULE_BRANCH && \
+  echo "SUBSTANCES_MODULE_BRANCH: "$SUBSTANCES_MODULE_BRANCH && \
+  echo "ADVERSE_EVENTS_MODULE_BRANCH: "$ADVERSE_EVENTS_MODULE_BRANCH && \
   git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
   git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
   git clone --branch $ADVERSE_EVENTS_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-adverse-events.git && \
-  cd gsrs-spring-starter &&  ./mvnw clean -U install -DskipTests && \
+  cd gsrs-spring-starter && \
     if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \
-    ./mvnw clean -U install -DskipTests && \
-  cd .. && cd gsrs-spring-module-substances && \
+    sh ./mvnw clean -U install -DskipTests && \
+  cd ../gsrs-spring-module-substances && \
     if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \
-    ./mvnw clean -U install -DskipTests && \
-  cd .. && cd gsrs-spring-module-adverse-events && \
+    sh ./mvnw clean -U install -DskipTests && \
+  cd ../gsrs-spring-module-adverse-events && \
     if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \
-    ./mvnw clean -U install -DskipTests && \
+    sh ./mvnw clean -U install -DskipTests && \
   cd ..; \
 fi && \
 rm -rf src/main/resources/adverse-events-env.conf && \
 rm -rf src/main/resources/adverse-events-env-db.conf && \
+rm -rf src/main/resources/adverse-events.conf && \
 if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \
-./mvnw clean -U package -Dwith.packaging=jar -DskipTests && \
+sh ./mvnw clean -U package -Dwith.packaging=jar -DskipTests && \
 ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
 mkdir -p /app/data/adverse-events/conf && \
 mkdir -p /app/data/adverse-events/classes
