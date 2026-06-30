@@ -40,9 +40,9 @@ You should be able to access containers from your Windows Firefox or other brows
 
 
 ```
-http://localhost:9081/ginas/app/ui 
+http://localhost:8081/ginas/app/ui 
 
-http://localhost:9081/api/v1/substances 
+http://localhost:8081/api/v1/substances 
 
 ```
 

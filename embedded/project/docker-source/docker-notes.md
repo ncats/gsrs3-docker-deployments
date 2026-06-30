@@ -20,7 +20,7 @@ export DB_TEST_USERNAME=root
 export DB_TEST_PASSWORD=yourpassword
 
 # development|public
-export RELEASE_MODE=public
+export RELEASE_MODE=development
 
 export BUILD_VERSION=v2025.0429.1
 
@@ -160,7 +160,7 @@ $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 cd gsrs-ci
 
 cd substances
-# cp ../../settings.xml . 
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
  docker build -f $DOCKER_SOURCE/substances/Dockerfile \
 --platform linux/x86_64 \
 --no-cache --progress=plain \
@@ -177,7 +177,7 @@ cd substances
 # not included in gsrs3-main-deployment
 cd ..
 cd discovery
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/discovery/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -187,7 +187,7 @@ docker build -f $DOCKER_SOURCE/discovery/Dockerfile \
 
 cd ..
 cd gateway
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -196,9 +196,9 @@ docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 
 cd ..
 cd frontend
-# cp ../../settings.xml .
-# export FRONTEND_TAG='development_3.0'
-export FRONTEND_TAG='GSRSv3.1.2PUB'
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
+export FRONTEND_TAG='development_3.0'
+# export FRONTEND_TAG='GSRSv3.1.2PUB'
 docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
 --no-cache --progress=plain \
 --build-arg FRONTEND_TAG=$FRONTEND_TAG \
@@ -208,7 +208,7 @@ docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
 
 cd ..
 cd adverse-events
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -221,7 +221,7 @@ docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 
 cd ..
 cd applications
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -233,7 +233,7 @@ docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 
 cd ..
 cd clinical-trials
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -245,7 +245,7 @@ docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 
 cd ..
 cd impurities
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -257,7 +257,7 @@ docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 
 cd ..
 cd invitro-pharmacology
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
  --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -269,7 +269,7 @@ docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
 
 cd ..
 cd products
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/products/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
@@ -281,7 +281,7 @@ docker build -f $DOCKER_SOURCE/products/Dockerfile \
 
 cd ..
 cd ssg4m
-# cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \

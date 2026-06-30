@@ -2,7 +2,7 @@
 FROM alpine:latest AS build
 
 ARG FRONTEND_TAG=development_3.0
-ARG USE_VOLUME_DIST='yes'
+ARG USE_VOLUME_DIST='no'
 ARG TZ=America/New_York
 ENV TZ=${TZ}
 
@@ -24,14 +24,23 @@ RUN if [ -f settings.xml ]; then \
   mkdir -p /root/.m2; \
   cp settings.xml /root/.m2/settings.xml; \
 fi && \
+apk update && \
 apk add --no-cache git openjdk17 && \
 rm -rf src/main/resources/frontend-env.conf && \
 rm -rf src/main/resources/frontend.conf && \
-if [ "${USE_VOLUME_DIST}" = 'yes' ]; then \
-    sh ./mvnw clean -U package -Dwith.packaging=jar -Dnode.disable -Dwithout.static -Dfrontend.tag=$FRONTEND_TAG -Dwithout.visualizer  -DskipTests; \
-else \
-    sh ./mvnw clean -U package -Dwith.packaging=jar -Dfrontend.tag=$FRONTEND_TAG -Dwithout.visualizer  -DskipTests; \
-fi && \
+# if [ "${USE_VOLUME_DIST}" = 'yes' ]; then \
+    echo "Using local deployment binaries"; \
+    sh ./mvnw clean -U package -Dwith.packaging=jar \
+      -Dfrontend.tag=local_deployable_binaries \
+      -Dfrontend.repo=file:///app/data/frontend/binaries \
+      -Dnode.disable -Dwithout.static \
+      -Dwithout.visualizer  -DskipTests; \
+# else \
+#    echo "Using Angular source from Git"; \
+#    sh ./mvnw clean -U package -Dwith.packaging=jar \
+#    -Dfrontend.tag=$FRONTEND_TAG \
+#    -Dwithout.visualizer  -DskipTests; \
+# fi && \
 ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
 mkdir -p /app/data/frontend/conf && \
 mkdir -p /app/data/frontend/classes/static

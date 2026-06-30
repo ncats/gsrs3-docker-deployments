@@ -14,6 +14,7 @@ RUN if [ -f settings.xml ]; then \
   mkdir -p /root/.m2; \
   cp settings.xml /root/.m2/settings.xml; \
 fi && \
+apk update && \
 apk add --no-cache \
     git \
     openjdk17 \

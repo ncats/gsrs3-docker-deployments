@@ -12,6 +12,7 @@ RUN if [ -f settings.xml ]; then \
   mkdir -p /root/.m2; \
   cp settings.xml /root/.m2/settings.xml; \
 fi && \
+apk update && \
 apk add --no-cache git openjdk17 && \
 if [ "$RELEASE_MODE" = "development" ]; then \
   echo "RELEASE_MODE: "$RELEASE_MODE && \

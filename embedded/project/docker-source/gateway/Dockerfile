@@ -22,5 +22,5 @@ mkdir -p /app/data/gateway/conf  && \
 mkdir -p /app/data/gateway/classes
 
 WORKDIR /app/data/gateway
-EXPOSE 9081
+EXPOSE 8081
 ENTRYPOINT ["java", "-cp", "/target/gateway.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]

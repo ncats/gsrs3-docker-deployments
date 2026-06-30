@@ -3,8 +3,8 @@ services:
     container_name: adverse-events-emb  
     entrypoint: ["java", "-cp", "/target/adverse-events.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
@@ -20,8 +20,8 @@ services:
     container_name: applications-emb  
     entrypoint: ["java", "-cp", "/target/applications.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
@@ -41,8 +41,8 @@ services:
     image: gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT
     entrypoint: ["java", "-cp", "/target/clinical-trials.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
@@ -66,8 +66,8 @@ services:
     entrypoint: ["java", "-cp", "/target/frontend.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       # Servlet context does not work from frontend-env.conf 
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
       MS_FRONTEND_SERVER_PORT: 8082
       MS_SERVLET_CONTEXT_PATH_FRONTEND: /
@@ -82,21 +82,21 @@ services:
     environment:
       DEBUG: false
       API_BASE_PATH: /ginas/app
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
-      SERVER_PORT: 9081
+      SERVER_PORT: 8081
     image: gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT
     ports:
-      - 9081:9081
+      - 8081:8081
     volumes:
       - ../volumes/app-data:/app/data
   impurities:
     container_name: impurities-emb
     entrypoint: ["java", "-cp", "/target/impurities.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
@@ -112,8 +112,8 @@ services:
     container_name: invitro-pharmacology-emb
     entrypoint: ["java", "-cp", "/target/invitro-pharmacology.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
@@ -131,8 +131,8 @@ services:
       - substances
     entrypoint: ["java", "-cp", "/target/products.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
@@ -148,8 +148,8 @@ services:
     container_name: ssg4m-emb
     entrypoint: ["java", "-cp", "/target/ssg4m.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
@@ -164,8 +164,8 @@ services:
     container_name: substances-emb
     entrypoint: ["java", "-cp", "/target/substances.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
-      APPLICATION_HOST: http://gateway:9081
-      APPLICATION_HOST_PORT: 9081
+      APPLICATION_HOST: http://gateway:8081
+      APPLICATION_HOST_PORT: 8081
       DB_TEST_PASSWORD: ${DB_TEST_PASSWORD}
       DB_TEST_USERNAME: ${DB_TEST_USERNAME}
       EUREKA_SERVICE_URL: http://discovery:8761/eureka
