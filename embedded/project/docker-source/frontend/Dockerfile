@@ -1,6 +1,8 @@
 
 FROM alpine:latest AS build
 
+ARG RELEASE_MODE='public'
+ARG SERVICES_COMMON_BRANCH=master
 ARG FRONTEND_TAG=development_3.0
 ARG USE_VOLUME_DIST='no'
 ARG TZ=America/New_York
@@ -26,6 +28,14 @@ RUN if [ -f settings.xml ]; then \
 fi && \
 apk update && \
 apk add --no-cache git openjdk17 && \
+if [ "$RELEASE_MODE" == "development" ]; then \
+    if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
+        git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \
+        cd gsrs-services-common;  \
+        sh mvnw clean -U install -DskipTests; \
+        cd ..; \
+    fi; \
+fi && \
 rm -rf src/main/resources/frontend-env.conf && \
 rm -rf src/main/resources/frontend.conf && \
 # if [ "${USE_VOLUME_DIST}" = 'yes' ]; then \

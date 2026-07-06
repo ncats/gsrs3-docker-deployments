@@ -2,6 +2,7 @@
 FROM alpine:latest AS build
 
 ARG RELEASE_MODE='public'
+ARG SERVICES_COMMON_BRANCH=master
 ARG TZ=America/New_York
 ENV TZ=${TZ}
 
@@ -12,6 +13,14 @@ RUN if [ -f settings.xml ]; then \
   cp settings.xml /root/.m2/settings.xml; \ 
 fi && \
 apk add --no-cache git openjdk17 && \
+if [ "$RELEASE_MODE" == "development" ]; then \
+    if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
+        git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \
+        cd gsrs-services-common;  \
+        sh mvnw clean -U install -DskipTests; \
+        cd ..; \
+    fi; \
+fi && \
 rm -rf src/main/resources/discovery-env.conf && \
 rm -rf src/main/resources/discovery.conf && \
 if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \

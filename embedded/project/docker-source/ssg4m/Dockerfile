@@ -2,6 +2,7 @@
 FROM alpine:latest AS build
 
 ARG RELEASE_MODE='public'
+ARG SERVICES_COMMON_BRANCH=master
 ARG STARTER_MODULE_BRANCH=master
 ARG SUBSTANCES_MODULE_BRANCH=master
 ARG SSG4M_MODULE_BRANCH=master
@@ -16,7 +17,14 @@ fi && \
 apk add --no-cache git openjdk17 && \
 if [ "$RELEASE_MODE" = "development" ]; then \
   echo "RELEASE_MODE: "$RELEASE_MODE && \
+  echo "SERVICES_COMMON_BRANCH: "$SERVICES_COMMON_BRANCH && \
   echo "SSG4M_MODULE_BRANCH: "$SSG4M_MODULE_BRANCH && \
+  if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
+      git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \
+      cd gsrs-services-common;  \
+      sh mvnw clean -U install -DskipTests; \
+      cd ..; \
+  fi && \
   git clone --branch $SSG4M_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-ssg4.git && \
   cd gsrs-spring-module-ssg4 && \
     if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \

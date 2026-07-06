@@ -25,6 +25,7 @@ export RELEASE_MODE=development
 export BUILD_VERSION=v2025.0429.1
 
 # As needed, only use if in development mode
+export SERVICES_COMMON_BRANCH='master' # For this one, if you want development mode to use the maven central repository for this, set it to empty string.
 export STARTER_MODULE_BRANCH='master'
 export SUBSTANCES_MODULE_BRANCH='master'
 export ADVERSE_EVENTS_MODULE_BRANCH='starter'
@@ -165,6 +166,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 --platform linux/x86_64 \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
@@ -181,6 +183,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/discovery/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-discovery:0.0.1-SNAPSHOT .
 
@@ -191,6 +194,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT .
 
@@ -203,6 +207,7 @@ docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
 --no-cache --progress=plain \
 --build-arg FRONTEND_TAG=$FRONTEND_TAG \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-frontend:0.0.1-SNAPSHOT .
 
@@ -212,6 +217,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg ADVERSE_EVENTS_MODULE_BRANCH=$ADVERSE_EVENTS_MODULE_BRANCH \
@@ -225,6 +231,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg APPLICATIONS_MODULE_BRANCH=$APPLICATIONS_MODULE_BRANCH \
@@ -237,6 +244,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg CLINICAL_TRIALS_MODULE_BRANCH=$CLINICAL_TRIALS_MODULE_BRANCH \
@@ -249,6 +257,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg IMPURITIES_MODULE_BRANCH=$IMPURITIES_MODULE_BRANCH \
@@ -261,6 +270,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
  --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg INVITRO_PHARMACOLOGY_MODULE_BRANCH=$INVITRO_PHARMACOLOGY_MODULE_BRANCH \
@@ -273,6 +283,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/products/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg PRODUCTS_MODULE_BRANCH=$PRODUCTS_MODULE_BRANCH \
@@ -285,6 +296,7 @@ if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi
 docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg SSG4M_MODULE_BRANCH=$SSG4M_MODULE_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .

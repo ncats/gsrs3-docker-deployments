@@ -1,6 +1,7 @@
 FROM alpine:latest AS build
 
 ARG RELEASE_MODE='public'
+ARG SERVICES_COMMON_BRANCH=master
 ARG STARTER_MODULE_BRANCH=master
 ARG SUBSTANCES_MODULE_BRANCH=master
 ARG PRODUCTS_MODULE_BRANCH=starter
@@ -16,9 +17,16 @@ fi && \
 apk add --no-cache git openjdk17 && \
 if [ "$RELEASE_MODE" = "development" ]; then \
   echo "RELEASE_MODE: "$RELEASE_MODE && \
+  echo "SERVICES_COMMON_BRANCH: "$SERVICES_COMMON_BRANCH && \
   echo "STARTER_MODULE_BRANCH: "$STARTER_MODULE_BRANCH && \
   echo "SUBSTANCES_MODULE_BRANCH: "$SUBSTANCES_MODULE_BRANCH && \
   echo "PRODUCTS_MODULE_BRANCH: "$PRODUCTS_MODULE_BRANCH && \
+  if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
+      git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \
+      cd gsrs-services-common;  \
+      sh mvnw clean -U install -DskipTests; \
+      cd ..; \
+  fi && \
   git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
   git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
   git clone --branch $PRODUCTS_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-drug-products.git && \

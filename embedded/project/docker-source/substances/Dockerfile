@@ -2,6 +2,7 @@
 FROM alpine:latest AS build
 
 ARG RELEASE_MODE='public'
+ARG SERVICES_COMMON_BRANCH=master
 ARG STARTER_MODULE_BRANCH=master
 ARG SUBSTANCES_MODULE_BRANCH=master
 ARG TZ=America/New_York
@@ -22,6 +23,12 @@ apk add --no-cache \
     ttf-dejavu \
     && fc-cache -fv && \
 if [ "$RELEASE_MODE" == "development" ]; then \
+    if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
+        git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \
+        cd gsrs-services-common;  \
+        sh mvnw clean -U install -DskipTests; \
+        cd ..; \
+    fi && \
     git clone --branch $STARTER_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-starter.git && \
     git clone --branch $SUBSTANCES_MODULE_BRANCH --depth 2 https://github.com/ncats/gsrs-spring-module-substances.git && \
     cd gsrs-spring-starter &&  ./mvnw clean -U install -DskipTests && \
