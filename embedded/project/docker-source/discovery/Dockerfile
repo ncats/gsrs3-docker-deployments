@@ -12,7 +12,7 @@ RUN if [ -f settings.xml ]; then \
   mkdir -p /root/.m2; \
   cp settings.xml /root/.m2/settings.xml; \ 
 fi && \
-apk add --no-cache git openjdk17 && \
+apk add --no-cache gnupg git openjdk17 && \
 if [ "$RELEASE_MODE" == "development" ]; then \
     if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
         git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \

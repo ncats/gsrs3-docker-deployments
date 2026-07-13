@@ -3,10 +3,17 @@
 ## Terminal Environment
 
 ```
+
+# Things that change often, set the values here to affect the below 
+export _RELEASE_MODE=public
+export _DATABASE='mariadb'
+=========
+
 cd gsrs3-docker-deployments/embedded
 
 export embedded_root_dir=$(pwd)
 
+export DATABASE=$_DATABASE
 
 
 export gsrs_ci_dir=$embedded_root_dir/project/gsrs-ci
@@ -20,12 +27,18 @@ export DB_TEST_USERNAME=root
 export DB_TEST_PASSWORD=yourpassword
 
 # development|public
-export RELEASE_MODE=development
+# export RELEASE_MODE=development
+# export RELEASE_MODE=public
+export RELEASE_MODE=$_RELEASE_MOD
 
 export BUILD_VERSION=v2025.0429.1
 
-# As needed, only use if in development mode
-export SERVICES_COMMON_BRANCH='master' # For this one, if you want development mode to use the maven central repository for this, set it to empty string.
+# Use this to get from github
+# export SERVICES_COMMON_BRANCH='master'
+
+# Use this to get from maven central
+export SERVICES_COMMON_BRANCH=''
+
 export STARTER_MODULE_BRANCH='master'
 export SUBSTANCES_MODULE_BRANCH='master'
 export ADVERSE_EVENTS_MODULE_BRANCH='starter'
@@ -35,6 +48,7 @@ export IMPURITIES_MODULE_BRANCH='starter'
 export INVITRO_PHARMACOLOGY_MODULE_BRANCH='master'
 export PRODUCTS_MODULE_BRANCH='starter'
 export SSG4M_MODULE_BRANCH='master'
+
 ```
 
 ## Purpose

@@ -27,7 +27,7 @@ RUN if [ -f settings.xml ]; then \
   cp settings.xml /root/.m2/settings.xml; \
 fi && \
 apk update && \
-apk add --no-cache git openjdk17 && \
+apk add --no-cache bash gnupg git openjdk17 libgcc libstdc++ && \
 if [ "$RELEASE_MODE" == "development" ]; then \
     if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
         git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \
@@ -39,17 +39,19 @@ fi && \
 rm -rf src/main/resources/frontend-env.conf && \
 rm -rf src/main/resources/frontend.conf && \
 # if [ "${USE_VOLUME_DIST}" = 'yes' ]; then \
-    echo "Using local deployment binaries"; \
-    sh ./mvnw clean -U package -Dwith.packaging=jar \
-      -Dfrontend.tag=local_deployable_binaries \
-      -Dfrontend.repo=file:///app/data/frontend/binaries \
-      -Dnode.disable -Dwithout.static \
-      -Dwithout.visualizer  -DskipTests; \
-# else \
-#    echo "Using Angular source from Git"; \
+
+#    echo "Using local deployment binaries"; \
 #    sh ./mvnw clean -U package -Dwith.packaging=jar \
-#    -Dfrontend.tag=$FRONTEND_TAG \
-#    -Dwithout.visualizer  -DskipTests; \
+#      -Dfrontend.tag=local_deployable_binaries \
+#      -Dfrontend.repo=file:///app/data/frontend/binaries \
+#      -Dnode.disable -Dwithout.static \
+#      -Dwithout.visualizer  -DskipTests; \
+# else \
+
+   echo "Using Angular source from Git"; \
+   sh ./mvnw clean -U package -Dwith.packaging=jar \
+   -Dfrontend.tag=$FRONTEND_TAG \
+   -Dwithout.visualizer  -DskipTests; \
 # fi && \
 ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
 mkdir -p /app/data/frontend/conf && \
