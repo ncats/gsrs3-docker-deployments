@@ -1,6 +1,11 @@
+# For now, if you need h2 you have to comment out the database depends_on lines below. 
+
 services:
   adverse-events:
     container_name: adverse-events-emb  
+    depends_on:
+       - "${DATABASE:-'mariadb'}"
+       - substances
     entrypoint: ["java", "-cp", "/target/adverse-events.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:8081
@@ -17,7 +22,10 @@ services:
     volumes:
       - ../volumes/app-data:/app/data
   applications:
-    container_name: applications-emb  
+    container_name: applications-emb
+    depends_on:
+       - "${DATABASE:-'mariadb'}"
+       - substances
     entrypoint: ["java", "-cp", "/target/applications.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:8081
@@ -37,7 +45,8 @@ services:
   clinical-trials:
     container_name: clinical-trials-emb
     depends_on:
-      - substances
+       - "${DATABASE:-'mariadb'}"
+       - substances
     image: gsrs3/gsrs-emb-docker-clinical-trials:0.0.1-SNAPSHOT
     entrypoint: ["java", "-cp", "/target/clinical-trials.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
@@ -93,6 +102,9 @@ services:
       - ../volumes/app-data:/app/data
   impurities:
     container_name: impurities-emb
+    depends_on:
+       - "${DATABASE:-'mariadb'}"
+       - substances
     entrypoint: ["java", "-cp", "/target/impurities.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:8081
@@ -110,6 +122,9 @@ services:
       - 8085:8085
   invitro-pharmacology:
     container_name: invitro-pharmacology-emb
+    depends_on:
+       - "${DATABASE:-'mariadb'}"
+       - substances
     entrypoint: ["java", "-cp", "/target/invitro-pharmacology.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:8081
@@ -128,7 +143,8 @@ services:
   products:
     container_name: products-emb
     depends_on:
-      - substances
+       - "${DATABASE:-'mariadb'}"
+       - substances
     entrypoint: ["java", "-cp", "/target/products.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:8081
@@ -146,6 +162,9 @@ services:
       - 8084:8084
   ssg4m:
     container_name: ssg4m-emb
+    depends_on:
+       - "${DATABASE:-'mariadb'}"
+       - substances
     entrypoint: ["java", "-cp", "/target/ssg4m.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
       APPLICATION_HOST: http://gateway:8081
@@ -161,6 +180,8 @@ services:
     ports:
       - 8088:8088
   substances:
+    depends_on:
+       - "${DATABASE:-'mariadb'}"
     container_name: substances-emb
     entrypoint: ["java", "-cp", "/target/substances.jar:classes:conf", "org.springframework.boot.loader.JarLauncher"]
     environment:
@@ -202,7 +223,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_TEST_PASSWORD}
       MYSQL_PASSWORD: ${DB_TEST_PASSWORD}
-      MYSQL_USER: ${DB_TEST_USERNAME}
+     #  MYSQL_USER: ${DB_TEST_USERNAME}
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     image: mysql:8.4
     ports:

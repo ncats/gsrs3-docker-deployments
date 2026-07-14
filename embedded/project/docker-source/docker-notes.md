@@ -4,17 +4,22 @@
 
 ```
 
+# use ONE of the database flavors:
+
+- h2 (DATABASE="" in this case)
+- postgresql
+- mariadb
+- mysql
+
+====
 # Things that change often, set the values here to affect the below 
-export _RELEASE_MODE=public
-export _DATABASE='mariadb'
-=========
+export RELEASE_MODE=development
+export DATABASE=mariadb
+====
 
 cd gsrs3-docker-deployments/embedded
 
 export embedded_root_dir=$(pwd)
-
-export DATABASE=$_DATABASE
-
 
 export gsrs_ci_dir=$embedded_root_dir/project/gsrs-ci
 # or ...
@@ -26,10 +31,6 @@ export HOST_VOLUMES=$embedded_root_dir/project/volumes
 export DB_TEST_USERNAME=root
 export DB_TEST_PASSWORD=yourpassword
 
-# development|public
-# export RELEASE_MODE=development
-# export RELEASE_MODE=public
-export RELEASE_MODE=$_RELEASE_MOD
 
 export BUILD_VERSION=v2025.0429.1
 
@@ -79,29 +80,23 @@ cd gsrs-ci
 First you'll need to build your images (see below)
 
 ```
-# use ONE of the database flavors:
-
-- h2 (DATABASE="" in this case)
-- postgresql
-- mariadb
-- mysql
 
 # The docker-compose.yml file should require one of these but does not yet do so.
 
 cd gsrs-ci
 
-export DATABASE=mariadb
 DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
 $DATABASE frontend gateway substances products
 
 # If you need to use sudo, put the sudo before the db credentials.
-export DATABASE=postgresql
 sudo \
 DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
 $DATABASE frontend gateway substances products
 ```
+
+If the substances database DDL is not generated, start the substances service alone. Otherwise other services will throw errors.  A wait-for-it condition should be used in future so that this step is not needed.
 
 ## Available services
 
@@ -326,7 +321,7 @@ tar -xvzf db.init.sql.tar.gz
 
 ```
 
-## Clean up indexes
+## Wipe indexes
 
 Before committing to Git, clean up folders from test instances
 
@@ -390,7 +385,10 @@ fi
 ## To do
 
 ```
+add a way to copy a single roles_config.json to root of volume of each service.
+set larger max_connections in my.conf in Mysql.
+Add wait for it (api call to substances) condition to all entity services. 
+Use a profile to make the database selection dynamic and that we can use a blank value for h2.
 Separate db init/info folders
-Add depends on substances to all entity services in docker-compose.yml (except ssg4m) 
-salt file?
+
 ```
