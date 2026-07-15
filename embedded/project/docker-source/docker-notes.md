@@ -1,29 +1,35 @@
 # Notes for GSRS Docker embedded deployment
 
+
+## Purpose
+
+This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS in an embedded Tomcat scenario.
+
 ## Terminal Environment
 
 ```
+# ====
 
-# use ONE of the database flavors:
-
-- h2 (DATABASE="" in this case)
-- postgresql
-- mariadb
-- mysql
-
-====
-# Things that change often, set the values here to affect the below 
-export RELEASE_MODE=development
-export DATABASE=mariadb
-====
+# Setup root folder
 
 cd gsrs3-docker-deployments/embedded
-
 export embedded_root_dir=$(pwd)
 
-export gsrs_ci_dir=$embedded_root_dir/project/gsrs-ci
-# or ...
-# export gsrs_ci_dir=$embedded_root_dir/project/gsrs3-main-deployment
+# Things that change often, set the values here to affect the below 
+
+# Can be e.g.: gsrs-ci | gsrs-example-deployment | gsrs3-main-deployment
+export repo_folder=gsrs-ci
+
+# Can be: public | development
+export RELEASE_MODE=development
+
+# Can be: blank for h2 | mariadb | mysql | postgresql
+export DATABASE=mariadb   
+# ====
+
+# Things that change less often
+
+export gsrs_ci_dir=$embedded_root_dir/project/$repo_folder
 
 export DOCKER_SOURCE=$embedded_root_dir/project/docker-source
 export HOST_VOLUMES=$embedded_root_dir/project/volumes
@@ -52,10 +58,6 @@ export SSG4M_MODULE_BRANCH='master'
 
 ```
 
-## Purpose
-
-This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS in an embedded Tomcat scenario.
-
 ## gsrs-ci
 
 Below "gsrs-ci" refers to a deployments folder used by FDA. but you may use any similar deployment repository/folder:
@@ -83,7 +85,7 @@ First you'll need to build your images (see below)
 
 # The docker-compose.yml file should require one of these but does not yet do so.
 
-cd gsrs-ci
+cd $gsrs_ci_dir 
 
 DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
@@ -167,7 +169,7 @@ $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 
 # ==== 
 
-cd gsrs-ci
+cd $gsrs_ci_dir 
 
 cd substances
 if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
@@ -339,9 +341,9 @@ rm -r $HOST_VOLUMES/app-data/substances/ginas.ix
 
 ```
 
-rm -r $HOST_VOLUMES/$app-data/db/mariadb/info && mkdir -p ./volumes/app-data/db/mariadb/info
-rm -r $HOST_VOLUMES/app-data/db/postgresql/info && mkdir -p ./volumes/app-data/db/postgresql/info
-rm -r  $HOST_VOLUMES/app-data/db/mysql/info && mkdir -p ./volumes/app-data/db/mysql/info
+rm -r $HOST_VOLUMES/app-data/db/mariadb/info && mkdir -p $HOST_VOLUMES/app-data/db/mariadb/info
+rm -r $HOST_VOLUMES/app-data/db/postgresql/info && mkdir -p $HOST_VOLUMES/app-data/db/postgresql/info
+rm -r  $HOST_VOLUMES/app-data/db/mysql/info && mkdir -p $HOST_VOLUMES/app-data/db/mysql/info
 ```
 
 ## Find more files to exclude from commits or clean up
@@ -391,4 +393,12 @@ Add wait for it (api call to substances) condition to all entity services.
 Use a profile to make the database selection dynamic and that we can use a blank value for h2.
 Separate db init/info folders
 
+```
+
+
+## Helpful tools
+
+```
+https://www.shellcheck.net/
+https://hadolint.com/
 ```

@@ -10,14 +10,14 @@ COPY . .
 
 RUN if [ -f settings.xml ]; then \
   mkdir -p /root/.m2; \
-  cp settings.xml /root/.m2/settings.xml; \ 
+  cp settings.xml /root/.m2/settings.xml; \
 fi && \
-apk add --no-cache gnupg git openjdk17 && \
-if [ "$RELEASE_MODE" == "development" ]; then \
+apk add --no-cache bash gnupg git openjdk17 tzdata && \
+if [ "$RELEASE_MODE" = "development" ]; then \
     if [ -n "$SERVICES_COMMON_BRANCH" ]; then \
-        git clone --branch $SERVICES_COMMON_BRANCH https://github.com/ncats/gsrs-services-common.git; \
-        cd gsrs-services-common;  \
-        sh mvnw clean -U install -DskipTests; \
+        git clone --branch "$SERVICES_COMMON_BRANCH" https://github.com/ncats/gsrs-services-common.git && \
+        cd gsrs-services-common && \
+        sh mvnw clean -U install -DskipTests && \
         cd ..; \
     fi; \
 fi && \
@@ -25,7 +25,7 @@ rm -rf src/main/resources/discovery-env.conf && \
 rm -rf src/main/resources/discovery.conf && \
 if [ -f "installExtraJars.sh" ]; then sh installExtraJars.sh; fi && \
 sh ./mvnw clean -U package -Dwith.packaging=jar -DskipTests && \
-ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone && \
 mkdir -p /app/data/discovery  && \
 mkdir -p /app/data/discovery/conf  && \
 mkdir -p /app/data/discovery/classes
