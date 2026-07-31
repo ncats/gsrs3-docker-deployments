@@ -1,26 +1,62 @@
 # Notes for GSRS Docker embedded deployment
 
+
+## Purpose
+
+This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS in an embedded Tomcat scenario.
+
 ## Terminal Environment
 
 ```
+# ====
 
+# Setup root folder
+
+cd gsrs3-docker-deployments/embedded
 export embedded_root_dir=$(pwd)
-export gsrs_ci_dir=$embedded_root_dir/project/gsrs3-main-deployment
+
+# Things that change often, set the values here to affect the below 
+
+# Can be e.g.: gsrs-ci | gsrs-example-deployment | gsrs3-main-deployment
+export repo_folder=gsrs-ci
+
+# Can be: public | development
+export RELEASE_MODE=development
+
+# Can be: blank for h2 | mariadb | mysql | postgresql
+export DATABASE=mariadb   
+# ====
+
+# Things that change less often
+
+export gsrs_ci_dir=$embedded_root_dir/project/$repo_folder
+
 export DOCKER_SOURCE=$embedded_root_dir/project/docker-source
 export HOST_VOLUMES=$embedded_root_dir/project/volumes
 
 export DB_TEST_USERNAME=root
 export DB_TEST_PASSWORD=yourpassword
 
-# development|public
-export RELEASE_MODE=public
 
 export BUILD_VERSION=v2025.0429.1
+
+# Use this to get from github
+# export SERVICES_COMMON_BRANCH='master'
+
+# Use this to get from maven central
+export SERVICES_COMMON_BRANCH=''
+
+export STARTER_MODULE_BRANCH='master'
+export SUBSTANCES_MODULE_BRANCH='master'
+export ADVERSE_EVENTS_MODULE_BRANCH='starter'
+export APPLICATIONS_MODULE_BRANCH='starter'
+export CLINICAL_TRIALS_MODULE_BRANCH='master'
+export IMPURITIES_MODULE_BRANCH='starter'
+export INVITRO_PHARMACOLOGY_MODULE_BRANCH='master'
+export PRODUCTS_MODULE_BRANCH='starter'
+export SSG4M_MODULE_BRANCH='master'
+
 ```
-
-## Purpose
-
-This Docker recipe is mainly meant for local testing and also to provide an introduction to using Docker with GSRS in an embedded Tomcat scenario.
 
 ## gsrs-ci
 
@@ -46,25 +82,23 @@ cd gsrs-ci
 First you'll need to build your images (see below)
 
 ```
-# use ONE of the database flavors:
-
-- h2 (DATABASE="" in this case)
-- postgresql
-- mariadb
-- mysql
 
 # The docker-compose.yml file should require one of these but does not yet do so.
 
+cd $gsrs_ci_dir 
+
+DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
+docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
+$DATABASE frontend gateway substances products
+
 # If you need to use sudo, put the sudo before the db credentials.
-
-cd gsrs-ci
-
-export DATABASE=postgresql 
 sudo \
 DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
 docker-compose -f $DOCKER_SOURCE/docker-compose.yml up \
 $DATABASE frontend gateway substances products
 ```
+
+If the substances database DDL is not generated, start the substances service alone. Otherwise other services will throw errors.  A wait-for-it condition should be used in future so that this step is not needed.
 
 ## Available services
 
@@ -112,9 +146,8 @@ See if environment variables are interpolated as expected.
 ```
 export DATABASE=postgresql 
 sudo \
-DB_TEST_USERNAME=root DB_TEST_PASSWORD=XXXXXX \
-docker-compose -f ../docker-source/docker-compose.yml up \
-config
+DB_TEST_USERNAME=root DB_TEST_PASSWORD=yourpassword \
+docker-compose -f $DOCKER_SOURCE/docker-compose.yml config
 ```
 
 ## Override the frontend config.json
@@ -130,18 +163,21 @@ $HOST_VOLUMES/app-data/frontend/classes/static/assets/data/config.json
 ```
 # Run these in the gsrs-ci/<service> corresponding folder
 
-# Make sure you have set a value RELEASE_MODE (development|public). This will determine whether a `Dockerfile` looks for code in Github or Maven. 
+# Make sure you have set a value RELEASE_MODE (development|public). This will determine whether a `Dockerfile` looks for code in Github or Maven Central.
+
+# A settings.xml file may be required, we are trying to make it no so.
 
 # ==== 
 
-cd gsrs-ci
+cd $gsrs_ci_dir 
 
 cd substances
-cp ../../settings.xml . 
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
  docker build -f $DOCKER_SOURCE/substances/Dockerfile \
 --platform linux/x86_64 \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
@@ -150,33 +186,49 @@ cp ../../settings.xml .
 # On substances 
 # --platform linux/x86_64  -- because got errors related to ehcache-failsafe.xml and Error loading shared library ld-linux-aarch64.so
 
+# Experimental, may not work, not currently used by FDA
+# not included in gsrs3-main-deployment
+cd ..
+cd discovery
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
+docker build -f $DOCKER_SOURCE/discovery/Dockerfile \
+--no-cache --progress=plain \
+--build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
+--build-arg BUILD_VERSION=$BUILD_VERSION \
+-t gsrs3/gsrs-emb-docker-discovery:0.0.1-SNAPSHOT .
+
+
 cd ..
 cd gateway
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/gateway/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-gateway:0.0.1-SNAPSHOT .
 
 cd ..
 cd frontend
-cp ../../settings.xml .
-# export FRONTEND_TAG='development_3.0'
-export FRONTEND_TAG='GSRSv3.1.2PUB'
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
+export FRONTEND_TAG='development_3.0'
+# export FRONTEND_TAG='GSRSv3.1.2PUB'
 docker build -f $DOCKER_SOURCE/frontend/Dockerfile \
 --no-cache --progress=plain \
 --build-arg FRONTEND_TAG=$FRONTEND_TAG \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-frontend:0.0.1-SNAPSHOT .
 
 cd ..
 cd adverse-events
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg ADVERSE_EVENTS_MODULE_BRANCH=$ADVERSE_EVENTS_MODULE_BRANCH \
@@ -186,10 +238,11 @@ docker build -f $DOCKER_SOURCE/adverse-events/Dockerfile \
 
 cd ..
 cd applications
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg APPLICATIONS_MODULE_BRANCH=$APPLICATIONS_MODULE_BRANCH \
@@ -198,10 +251,11 @@ docker build -f $DOCKER_SOURCE/applications/Dockerfile \
 
 cd ..
 cd clinical-trials
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg CLINICAL_TRIALS_MODULE_BRANCH=$CLINICAL_TRIALS_MODULE_BRANCH \
@@ -210,10 +264,11 @@ docker build -f $DOCKER_SOURCE/clinical-trials/Dockerfile \
 
 cd ..
 cd impurities
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg IMPURITIES_MODULE_BRANCH=$IMPURITIES_MODULE_BRANCH \
@@ -222,10 +277,11 @@ docker build -f $DOCKER_SOURCE/impurities/Dockerfile \
 
 cd ..
 cd invitro-pharmacology
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
  --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg INVITRO_PHARMACOLOGY_MODULE_BRANCH=$INVITRO_PHARMACOLOGY_MODULE_BRANCH \
@@ -234,10 +290,11 @@ docker build -f $DOCKER_SOURCE/invitro-pharmacology/Dockerfile \
 
 cd ..
 cd products
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/products/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg STARTER_MODULE_BRANCH=$STARTER_MODULE_BRANCH \
 --build-arg SUBSTANCES_MODULE_BRANCH=$SUBSTANCES_MODULE_BRANCH \
 --build-arg PRODUCTS_MODULE_BRANCH=$PRODUCTS_MODULE_BRANCH \
@@ -246,10 +303,11 @@ docker build -f $DOCKER_SOURCE/products/Dockerfile \
 
 cd ..
 cd ssg4m
-cp ../../settings.xml .
+if [ -f ../../settings.xml ]; then cp ../../settings.xml .; fi 
 docker build -f $DOCKER_SOURCE/ssg4m/Dockerfile \
 --no-cache --progress=plain \
 --build-arg RELEASE_MODE=$RELEASE_MODE \
+--build-arg SERVICES_COMMON_BRANCH=$SERVICES_COMMON_BRANCH \
 --build-arg SSG4M_MODULE_BRANCH=$SSG4M_MODULE_BRANCH \
 --build-arg BUILD_VERSION=$BUILD_VERSION \
 -t gsrs3/gsrs-emb-docker-ssg4m:0.0.1-SNAPSHOT .
@@ -265,25 +323,27 @@ tar -xvzf db.init.sql.tar.gz
 
 ```
 
-## Clean up indexes
+## Wipe indexes
 
 Before committing to Git, clean up folders from test instances
 
 ```
-rm -r ./volumes/app-data/adverse-events/ginas.ix
-rm -r ./volumes/app-data/applications/ginas.ix
-rm -r ./volumes/app-data/clinical-trials/ginas.ix
-rm -r ./volumes/app-data/impurities/ginas.ix
-rm -r ./volumes/app-data/invitro-pharmacology/ginas.ix
-rm -r ./volumes/app-data/substances/ginas.ix
+rm -r $HOST_VOLUMES/app-data/adverse-events/ginas.ix
+rm -r $HOST_VOLUMES/app-data/applications/ginas.ix
+rm -r $HOST_VOLUMES/app-data/clinical-trials/ginas.ix
+rm -r $HOST_VOLUMES/app-data/impurities/ginas.ix
+rm -r $HOST_VOLUMES/app-data/invitro-pharmacology/ginas.ix
+rm -r $HOST_VOLUMES/app-data/products/ginas.ix
+rm -r $HOST_VOLUMES/app-data/substances/ginas.ix
 ```
 
 ## Wipe databases
 
 ```
-rm -r ./volumes/app-data/db/mariadb/info && mkdir -p ./volumes/app-data/db/mariadb/info
-rm -r ./volumes/app-data/db/postgresql/info && mkdir -p ./volumes/app-data/db/postgresql/info
-rm -r ./volumes/app-data/db/mysql/info && mkdir -p ./volumes/app-data/db/mysql/info
+
+rm -r $HOST_VOLUMES/app-data/db/mariadb/info && mkdir -p $HOST_VOLUMES/app-data/db/mariadb/info
+rm -r $HOST_VOLUMES/app-data/db/postgresql/info && mkdir -p $HOST_VOLUMES/app-data/db/postgresql/info
+rm -r  $HOST_VOLUMES/app-data/db/mysql/info && mkdir -p $HOST_VOLUMES/app-data/db/mysql/info
 ```
 
 ## Find more files to exclude from commits or clean up
@@ -327,7 +387,18 @@ fi
 ## To do
 
 ```
+add a way to copy a single roles_config.json to root of volume of each service.
+set larger max_connections in my.conf in Mysql.
+Add wait for it (api call to substances) condition to all entity services. 
+Use a profile to make the database selection dynamic and that we can use a blank value for h2.
 Separate db init/info folders
-Add depends on substances to all entity services in docker-compose.yml (except ssg4m) 
-salt file?
+
+```
+
+
+## Helpful tools
+
+```
+https://www.shellcheck.net/
+https://hadolint.com/
 ```
