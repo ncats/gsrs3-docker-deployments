@@ -5,6 +5,10 @@
 go to CMD terminal
 type `wsl --list`
 
+If you see an Ubuntu installation, start it like so:
+
+wsl -d <Ubuntu installation name>
+
 If you don't see an Ubuntu installation, then install one.
 
 ```
